@@ -173,6 +173,8 @@ public final class PowerManagerService extends SystemService
     // Default setting for double tap to wake.
     private static final int DEFAULT_DOUBLE_TAP_TO_WAKE = 0;
 
+    private static final int BUTTON_ON_DURATION = 5 * 1000;
+
     /** Constants for {@link #shutdownOrRebootInternal} */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({HALT_MODE_SHUTDOWN, HALT_MODE_REBOOT, HALT_MODE_REBOOT_SAFE_MODE})
@@ -196,6 +198,7 @@ public final class PowerManagerService extends SystemService
     private SettingsObserver mSettingsObserver;
     private DreamManagerInternal mDreamManager;
     private Light mAttentionLight;
+    private Light mButtonsLight;
 
     private final Object mLock = new Object();
 
@@ -599,6 +602,7 @@ public final class PowerManagerService extends SystemService
 
             mLightsManager = getLocalService(LightsManager.class);
             mAttentionLight = mLightsManager.getLight(LightsManager.LIGHT_ID_ATTENTION);
+            mButtonsLight = mLightsManager.getLight(LightsManager.LIGHT_ID_BUTTONS);
 
             // Initialize display power management.
             mDisplayManagerInternal.initPowerManagement(
@@ -1716,6 +1720,12 @@ public final class PowerManagerService extends SystemService
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
+                        if (now > mLastUserActivityTime + BUTTON_ON_DURATION) {
+                            mButtonsLight.setBrightness(0);
+                        } else {
+                            mButtonsLight.setBrightness(mDisplayPowerRequest.screenBrightness);
+                            nextTimeout = now + BUTTON_ON_DURATION;
+                        }
                         mUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
                     } else {
                         nextTimeout = mLastUserActivityTime + screenOffTimeout;
