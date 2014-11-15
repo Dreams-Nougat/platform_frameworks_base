@@ -116,7 +116,7 @@ public class LegacyExceptionUtils {
             errorCode = ICameraService.ERROR_MAX_CAMERAS_IN_USE;
             errorMsg = "Maximum number of cameras in use";
         } else if (errorFlag == -ENODEV) {
-            errorCode = ICameraService.ERROR_DISCONNECTED;
+            errorCode = ICameraService.ERROR_MAX_CAMERAS_IN_USE;
             errorMsg = "Camera device not available";
         } else if (errorFlag == -EOPNOTSUPP) {
             errorCode = ICameraService.ERROR_DEPRECATED_HAL;
